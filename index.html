@@ -392,7 +392,7 @@ function initMic(targetId, btnId, labelId) {
   recognition.interimResults = true;
   recognition.lang = 'en-US';
 
-  var savedText = recognition._savedText || '';
+  var savedText = '';
   recognition.onresult = function(e) {
     var interim = '';
     var final = '';
@@ -403,9 +403,9 @@ function initMic(targetId, btnId, labelId) {
         interim += e.results[i][0].transcript;
       }
     }
-    if (final) { savedText += final; recognition._savedText = savedText; }
+    if (final) { savedText += final; }
     var box = document.getElementById(activeTarget);
-    box.value = savedText + interim;
+    if (box) box.value = savedText + interim;
   };
 
   recognition.onerror = function() { stopMic(btnId, labelId); };
@@ -433,9 +433,9 @@ function toggleRegenMic() {
 
 function startMic(btnId, labelId) {
   isListening = true;
-  // Capture any text already in the box so we don't overwrite it
+  // Seed savedText with anything already typed in the box
   var box = document.getElementById(activeTarget);
-  recognition._savedText = box.value;
+  if (box && recognition) recognition._baseText = box.value;
   recognition.start();
   var btn = document.getElementById(btnId);
   btn.classList.add('active');
