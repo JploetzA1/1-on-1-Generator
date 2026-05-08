@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>A1 Technician 1-on-1 Builder v1.0.4</title>
+<title>A1 Technician 1-on-1 Builder v1.0.5</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -203,7 +203,7 @@
     <input class="pw-input" type="password" id="pw-input" placeholder="Access code" onkeydown="if(event.key==='Enter')checkPassword()" />
     <button class="pw-btn" onclick="checkPassword()">Enter</button>
     <div class="pw-error" id="pw-error"></div>
-    <div class="pw-tagline">A1 From Day 1 &nbsp;·&nbsp; v1.0.4</div>
+    <div class="pw-tagline">A1 From Day 1 &nbsp;·&nbsp; v1.0.5</div>
   </div>
 </div>
 
@@ -228,10 +228,11 @@
         <label>Role</label>
         <select id="tech-role">
           <option value="" disabled selected>Select role</option>
+          <option>Jr. Technician</option>
+          <option>Technician</option>
+          <option>Sr. Technician</option>
           <option>Maintenance Technician</option>
           <option>Installer</option>
-          <option>Senior Technician</option>
-          <option>Lead Installer</option>
           <option>Apprentice</option>
         </select>
       </div>
@@ -336,6 +337,12 @@
       <div class="output-section-body" id="actions-body"></div>
     </div>
 
+    <!-- COPY ALL / PDF -->
+    <div style="display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap;">
+      <button class="btn-primary" style="flex:1;min-width:140px;font-size:13px;padding:12px 20px;" onclick="copyAll()">📋 Copy All Sections</button>
+      <button class="btn-primary" style="flex:1;min-width:140px;font-size:13px;padding:12px 20px;background:#1D3A6B;" onclick="downloadPDF()">⬇ Download PDF</button>
+    </div>
+
     <!-- REGENERATE -->
     <div class="card" style="margin-top:8px;">
       <div class="regen-note">Not quite right? Add more context below and regenerate.</div>
@@ -358,6 +365,61 @@
 </div>
 
 <script>
+function copyAll() {
+  var sections = [
+    { label: '✅ Check-in / Journal Review / Wins', id: 'checkin-body' },
+    { label: '📊 Monthly Performance Review', id: 'performance-body' },
+    { label: '🎯 S.M.A.R.T. Goals', id: 'goals-body' },
+    { label: '💡 A1 Core Values', id: 'values-body' },
+    { label: '🛠 Action Items / Follow-ups / Additional Training', id: 'actions-body' }
+  ];
+  var name = document.getElementById('tech-name').value.trim();
+  var role = document.getElementById('tech-role').value;
+  var date = getDateFormatted();
+  var manager = document.getElementById('manager-name').value.trim();
+  var full = '📋 Technician Monthly 1:1\n\n';
+  full += 'Technician: ' + name + '\nRole: ' + role + '\nDate: ' + date + '\nManager: ' + manager + '\n\n';
+  sections.forEach(function(s) {
+    full += s.label + '\n\n' + document.getElementById(s.id).textContent + '\n\n';
+  });
+  navigator.clipboard.writeText(full.trim()).then(function() {
+    alert('All sections copied to clipboard!');
+  });
+}
+
+function downloadPDF() {
+  var name = document.getElementById('tech-name').value.trim();
+  var role = document.getElementById('tech-role').value;
+  var date = getDateFormatted();
+  var manager = document.getElementById('manager-name').value.trim();
+  var sections = [
+    { label: '✅ Check-in / Journal Review / Wins', id: 'checkin-body' },
+    { label: '📊 Monthly Performance Review', id: 'performance-body' },
+    { label: '🎯 S.M.A.R.T. Goals', id: 'goals-body' },
+    { label: '💡 A1 Core Values', id: 'values-body' },
+    { label: '🛠 Action Items / Follow-ups / Additional Training', id: 'actions-body' }
+  ];
+  var html = '<!DOCTYPE html><html><head><meta charset="UTF-8"><style>';
+  html += 'body{font-family:Arial,sans-serif;padding:40px;max-width:800px;margin:0 auto;color:#1a1a1a;}';
+  html += 'h1{font-size:22px;color:#0B1628;border-bottom:3px solid #C9A84C;padding-bottom:10px;margin-bottom:6px;}';
+  html += '.meta{font-size:13px;color:#555;margin-bottom:28px;}';
+  html += 'h2{font-size:14px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#C9A84C;margin:24px 0 8px;border-top:1px solid #e5e5e5;padding-top:16px;}';
+  html += 'p{font-size:14px;line-height:1.8;white-space:pre-wrap;}';
+  html += '.footer{margin-top:40px;font-size:11px;color:#aaa;text-align:center;border-top:1px solid #e5e5e5;padding-top:12px;}';
+  html += '</style></head><body>';
+  html += '<h1>📋 Technician Monthly 1:1</h1>';
+  html += '<div class="meta"><strong>Technician:</strong> ' + name + ' &nbsp;|&nbsp; <strong>Role:</strong> ' + role + ' &nbsp;|&nbsp; <strong>Date:</strong> ' + date + ' &nbsp;|&nbsp; <strong>Manager:</strong> ' + manager + '</div>';
+  sections.forEach(function(s) {
+    html += '<h2>' + s.label + '</h2><p>' + document.getElementById(s.id).textContent + '</p>';
+  });
+  html += '<div class="footer">A1 Garage Door Services &mdash; Confidential HR Document</div>';
+  html += '</body></html>';
+  var blob = new Blob([html], {type: 'text/html'});
+  var url = URL.createObjectURL(blob);
+  var win = window.open(url, '_blank');
+  setTimeout(function() { win.print(); }, 800);
+}
+
 // ── PASSWORD ─────────────────────────────────────────────────────────────────
 function checkPassword() {
   var val = document.getElementById('pw-input').value.trim().toUpperCase();
@@ -706,6 +768,6 @@ function clearAll() {
   clearError();
 }
 </script>
-<div class="ver-badge">v1.0.4</div>
+<div class="ver-badge">v1.0.5</div>
 </body>
 </html>
